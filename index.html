@@ -1,52 +1,263 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-<style>
-body {
-  background-color: lightblue;
-}
+  <style>
+    body {
+      background-color: lightblue;
+    }
 
-<h1 style="background-color:DodgerBlue;">Hello World</h1>
-<p style="background-color:Tomato;">Lorem ipsum...</p>
-
-h1 {
-  color: green;
-  text-align: center;
-}
+    <h1 style="background-color:DodgerBlue;">Hello World</h1><p style="background-color:Tomato;">Lorem ipsum...</p>h1 {
+      color: green;
+      text-align: center;
+    }
 
 
 
-p {
-  font-family: verdana;
-  font-size: 20px;
-}
-</style>
+    p {
+      font-family: verdana;
+      font-size: 20px;
+    }
+  </style>
 
 
 
 
-<h1>My Wiki</h1>
+  <h1>My Wiki</h1>
 
 
-<h2>Items</h2>
-<h2>HTML Image</h2>
-<img src="https://github.com/linuxemb/wiki/blob/main/image/boot104.PNG" alt="Trulli" width="500" height="333">
+  <h2>Items</h2>
+  <h2>HTML Image</h2>
+  <img src="https://github.com/linuxemb/wiki/blob/main/image/boot104.PNG" alt="Trulli" width="500" height="333">
 
 </head>
 
 <body>
 
-<ol>
-  <li>icicleboard</li>
-   <a href="https://github.com/polarfire-soc">polarfire repo</a>
- 
-  <li>riscv</li>
-  <li>bootloaderHSS</li>
-  <li>u-boot</li>
- <li>linux</li>	
+  <ol>
+    <li>icicleboard</li>
+    <a href="https://github.com/polarfire-soc">polarfire repo</a>
+    <pre>
+      <code>
+        p { color: red; }
+        body { background-color: #eee; }
+      </code>
+    </pre>
+    <li>riscv</li>
+    <li>bootloaderHSS</li>
+    <li>u-boot</li>
+    <li>linux</li>
+    <li>Tools</li>
+    <li>Commands</li>
+    echo $PETALINUX
+    source <path-to-installed-PetaLinux>/settings.sh
+      Create a PetaLinux project <code> petalinux-create -t project  </code>
+      Initialize a PetaLinux project (for custom hardware only) <code> petalinux-config --get-hw-description</code>
+      Configure system-level options  <code> petalinux-config</code> 
+      Create user components petalinux-create -t COMPONENT
+      Configure the Linux kernel petalinux-config -c kernel
+      Configure the root filesystem petalinux-config -c rootfs
+      Build the system petalinux-build
+      Package for deploying the system petalinux-package
+      Boot the system for testing petalinux-boot
 
-</ol> 
-<p>Polarfire related staff</p>
+      petalinux-create -t project -s <path-to-bsp>
+
+
+
+
+        petalinux-tool-ref-guide
+        <a
+          href="https://www.xilinx.com/support/documentation/sw_manuals/xilinx2020_1/ug1144-petalinux-tools-reference-guide.pdf">link</a>
+
+          <h2>Configuring Hardware Platform with Vivado  Design Suite and creat prjoect</h2>
+          
+        <h3>Commands</h3>
+        <li> Start up Vivado <code>$ source "path-to-installed-Xilinx-Vivado"/settings64.sh</code>  </li>
+
+        <li> Exprting hw platform to petalinux prj .xsa file , if need build PMU and ATF, FSBL run on Cortex-A53 build create an empty prj from template  <code>$ $petalinux-create --type project --template <PLATFORM> --name prjnamd</PLATFORM></code>  </li>
+        platform supported
+       ○ zynqMP (for Zynq UltraScale+ MPSoC)
+       ○ zynq (for Zynq-7000 devices)
+       ○ microblaze (for MicroBlaze™ processor)
+         Note: The MicroBlaze option cannot be used along with Zynq-7000 devices or Zynq UltraScale+
+        designs in the Programmable Logic (PL)
+        <li> chagne in to dir of prj <code>$ $ cd  plnx-proj-root </code>  </li>
+        <li> Import hw description  <code>$ petalinux-config  --get-hw-description ../../.xsa</code>  </li>
+        launches the top system configuration menu.
+        Ensure DTG Settings → → (template) MACHINE_NAME is selected and change the template to
+        any of the below mentioned possible values are zcu106..
+        Ensure Subsystem AUTO Hardware Settings is select 
+        PetaLinux U-Boot configuration
+        files and the kernel config files based on the “Auto Config Settings --->” and “Subsystem AUTO
+        Hardware Settings --->” settings
+        example ps7_ethernet_0 as the Primary Ethernet is selected and you enable the auto
+update for kernel configuration and U-Boot configuration, the tool automatically enables its
+kernel driver and also updates the U-Boot configuration headers for U-Boot to use the selected
+Ethernet controller
+
+
+
+The --silentconfig option allows you to reuse a prior configuration. Old configurations have
+the file name CONFIG.old within the directory containing the specified component for
+unattended update
+
+
+<h3>Build system Image</h3>
+
+
+
+
+<li><code>$cd <plnx-proj-root></plnx-proj-root> </code></li> 
+
+<li>    <code> petalinux-build </code>     </li> 
+<h3>  Default image</h3>
+it generates FIT images for Zynq® UltraScale+™ MPSoC,
+Zynq-7000 devices, and MicroBlaze™ platforms. The RAM disk image rootfs.cpio.gz.uboot is also generated.
+          
+ <h3>Generate boot image</h3>
+ <li>    <code> petalinux-package --boot --u-boot --format BIN </code></li> 
+
+   
+ c$ petalinux-package --boot --fpga <FPGA bitstream> --u-boot --kernel</code></li> 
+
+  It generates boot.mcs in your working directory and it copies it to the <plnx-proj-root>/
+    images/linux/ directory. With the above command, the MCS file contains FPGA bitstream,
+    fs-boot, U-Boot, and kernel image image.ub.
+    <li>    <code></code> Command to generate the MCS file with fs-boot and FPGA bitstream only:
+    $ petalinux-package --boot --fpga FPGA bitstream </code></li> 
+    Command to generate the MCS file with FPGA bitstream, fs-boot, and U-Boot:
+    <li>    <code>$ petalinux-package --boot --fpga FPGA bitstream --u-boot</code></li> 
+    
+    <h3>   Modify Bitstream File for MicroBlaze processor </h3>
+
+    Execute the following command to modify the bitstream file for MicroBlaze™ processor.
+    <li>    <code></code>$ petalinux-package --boot --fpga <FPGA bitstream> --fsbl <FSBL_ELF> --
+    format DOWNLOAD.BIT</code></li> 
+    This generates download.bit in the <plnx-proj-root>images/linux/ directory. With
+      the above command, it merges the fs-boot into the FPGA bitstream by mapping the ELF data
+      onto the memory map information (MMI) for the block RAMs in the design. For detailed usage,
+      see the --help option or see the PetaLinux Tools Documentation: PetaLinux Command Line
+      Reference (UG1157) <a href="https://www.xilinx.com/support/documentation/sw_manuals/xilinx2020_1/ug1157-petalinux-tools-command-line-guide.pdf">petalinuxtool command line ref</a>
+
+  <h3>Optimize build :Local Mirror Servers</h3>
+download here <a href="http://petalinux.xilinx.com/sswreleases/rel-v2020/downloads">SSTATECACHE link</a>
+
+
+
+Source Mirrors
+You can set source mirrors through petalinux-config → Yocto-settings → Add pre-mirror URL.
+Select file://<local downloads path> for all projects. Save the configuration to use the
+download mirrors and verify the changes in build/conf/plnxtool.conf.
+Reduce Build Time
+To reduce the build time by disabling the network sstate feeds, de-select the petalinux-config → 
+Yocto Settings → Enable Network sstate feeds.
+Sstate Feeds
+You can set sstate feeds through petalinux-config.
+• sstate feeds on NFS: Go to petalinux-config → Yocto Settings → Local sstate feeds settings
+and enter the full path of the sstate directory. By enabling this option, you can point to your
+own shared state which is available at a NFS/local mount point.
+For example, to enable, use /opt/petalinux/sstate-cache_2020/aarch64.
+• sstate feeds on webserver: Go to petalinux-config → Yocto Settings → Enable Network sstate
+feeds → Network sstate feeds URL and enter the URL for sstate feeds.
+Note: This is set to http://petalinux.xilinx.com/sswreleases/rel-v2020/aarch64/sstate-cache, by default.
+
+
+
+
+<style>
+  table, th, td {
+    border:1px solid black;
+  }
+  </style>
+  <body>
+  
+  <h2>Command compare</h2>
+  
+  <table style="width:100%">
+    <tr>
+      <th>petalinux</th>
+      <th>Yocto devtool </th>
+      
+    </tr>
+    <tr>
+      <td>petalinux-build -c component -x finish> </td>
+      <td>devtool finish compnent</td>
+     </tr>
+   
+     <tr>
+      <td>petalinux-build -c component -x  modify</td>
+      <td>devtool modify component </td>
+    </tr>
+  
+    <tr>
+      <td>petalinux-build -x reset</td>
+      <td>devtool reset comoent; rm -rf workspace/sources/component</td>
+    </tr>
+
+    <tr>
+      <td>petalinux-build -x update-recipe</td>
+      <td>devtool update-recipe component</td>
+    </tr>
+
+
+    <tr>
+      <td>petalinux-build -c component</td>
+      <td>devtool modify component; devtool menuconfig component</td>
+    </tr>
+
+
+    <tr>
+      <td>petalinux-config -c component --silentconfig</td>
+      <td>devtool modify component; devtool configure component</td>
+    </tr>
+
+
+
+    
+  
+  
+  
+  </table>
+  
+  <p>To undestand the example better, we have added borders to the table.</p>
+  
+
+
+
+
+
+
+      $ source <path-to-installed-Xilinx-Vivado>/settings64.sh
+
+       <body>
+         <div>
+           source code here
+         </div>
+       </body>
+          
+
+          pre code {
+            background-color: #eee;
+            border: 1px solid #999;
+            display: block;
+            padding: 20px;
+          }
+
+
+          IMPORTANT! If soft IP with interrupt or external PHY device with interrupt is used, ensure the interrupt signal
+          is connected
+
+          Vim link
+          <a href="https://github.com/polarfire-soc">Vundle</a>
+          Exuberant ctags
+          sudo apt-get install -y exuberant-ctags
+          ctags -R .
+          sudo apt install silversearcher-ag
+
+  </ol>
+  <p>Polarfire related staff</p>
 
 </body>
+
 </html>
