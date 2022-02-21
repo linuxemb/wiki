@@ -144,7 +144,16 @@ Zynq-7000 devices, and MicroBlaze™ platforms. The RAM disk image rootfs.cpio.g
 download here <a href="http://petalinux.xilinx.com/sswreleases/rel-v2020/downloads">SSTATECACHE link</a>
 
 
+zynqMP  build
+repo init -u git://github.com/Xilinx/yocto-manifests.git -b rel-v2020.2
+repo sync
+Source Xilinx sdk script to setup environment
+. xilinx/setupsdk
+Add other vendor specific layers and your custom layer:
+bitbake-layers add-layer ../meta-avnet/
 
+
+<li>    <code></code>MACHINE=zynqmp-generic bitbake core-image-minimal</code></li> 
 Source Mirrors
 You can set source mirrors through petalinux-config → Yocto-settings → Add pre-mirror URL.
 Select file://<local downloads path> for all projects. Save the configuration to use the
@@ -224,6 +233,61 @@ Note: This is set to http://petalinux.xilinx.com/sswreleases/rel-v2020/aarch64/s
   
 
 
+  <li></li> show-layers
+  <li></li> show-layers
+  <li>   bitbake-layers show-layers  </li> 
+
+  <li>bitbake-layers add-layer ../meta-avnet  </li>
+<li>bitbake-layers add-layer ../meta-user</li>
+<li>bitbake image_or_package</li>
+
+<h3>Flow of customizing a Linux kernel configs</h3>
+<li>MACHINE=zynqmp-generic bitbake linux-xlnx -c menuconfig </li>
+  Change your kernel configs in the menu and exit/save
+  <li> MACHINE=ynqmp-generic bitbake linux-xlnx -c diffconfig </li>
+  This will detect the changes you have done for the kernel config and save the delta into a file called fragment.cfg which you can check and append into your extra-configs.cfg file in your kernel recipe
+  <h3>Flow of Customizing a package</h3>
+
+  <li>  MACHINE=zynqmp-genericdevtool modify package_name</li>
+    The package source  code will pulled into build/workspace/sources/package_name
+    Got to the package workspace source directory and do modification you need and build the package:
+    <li> MACHINE=zynqmp-generic devtool build package_name</li>
+    After the build and testing is done. Go to build/workspace/sources/package_name, add the changes into a commit and commit.
+      <li>  MACHINE=zynqmp-generic devtool update-recipe -a your meta-user dir package_name</li>
+    This will create/update .bbappend file for this package and genereate corresponding patch files for you.
+    <li>MACHINE=zynqmp-generic devtool reset package_name</li>
+    
+
+ <h3>Create plafor specifc change for a recipe</h3>
+ to create a platform specific changes for your custom hardware platform instead of adding it as a generic patch, especially when you have multiple platforms to maintain at the same time
+For HDF files, in meta-user/recipes-bsp/hdf/external-hdf.bbappend, define hdf file for specific platform as:
+HDF_BASE_your-machine-name = "file://"
+HDF_PATH_your-machine-name = “your_fpga.xsa“
+your_fpga.xsa is placed in meta-user/recipes-bsp/hdf/files directory
+For regular packages like device tree, u-boot, in your meta-user/recipes-abc/your_pkg/your-package.bbappend, define as:
+SRC_URI_append_your-machine-name = file://0001-your-change.patch
+0001-your-change.patch in meta-user/recipes-abc/your_pkg/files/your-machine-name directory
+
+
+<h3>statecache</h3>
+Following section of config is recommended to be added into your build/conf/local.conf
+#Add Pre-mirrors from petalinux-config
+PREMIRRORS = " git://.*/.* http://petalinux.xilinx.com/sswreleases/rel-v2020/downloads \n \
+ftp://.*/.* http://petalinux.xilinx.com/sswreleases/rel-v2020/downloads \n \
+http://.*/.* http://petalinux.xilinx.com/sswreleases/rel-v2020/downloads \n \
+https://.*/.* http://petalinux.xilinx.com/sswreleases/rel-v2020/downloads \n"
+#Sttate mirror settings
+SSTATE_MIRRORS = "  \
+file://.* http://petalinux.xilinx.com/sswreleases/rel-v2020/aarch64/sstate-cache/PATH;downloadfilename=PATH \n \
+"
+<h3>I change the default UART for FSBL/u-boot</h3>
+
+The default of the console UART is psu_uart_0
+To change it, add following lines into your machine .conf file:
+<break> YAML_SERIAL_CONSOLE_STDIN = "psu_uart_1" </break>
+
+<break>YAML_SERIAL_CONSOLE_STDOUT = "psu_uart_1"</break>
+<break>YAML_CONSOLE_DEVICE_CONFIG = "psu_uart_1"</break>
 
 
 
