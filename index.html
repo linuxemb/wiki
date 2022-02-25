@@ -289,7 +289,15 @@ To change it, add following lines into your machine .conf file:
 <break>YAML_SERIAL_CONSOLE_STDOUT = "psu_uart_1"</break>
 <break>YAML_CONSOLE_DEVICE_CONFIG = "psu_uart_1"</break>
 
-
+<span style="color: #333333; font-size: 14px;">$ vim conf/local.conf
+  
+  #Provide the hdf base,path and filename for HDF
+    
+  HDF_BASE = "file://"
+  HDF_PATH = "/home/saurabh/yocto/hdf"
+  HDF_FILE = "design_1_wrapper.hdf"
+    
+  EXTRA_IMAGEDEPENDS += " fsbl pmu-firmware"
 
 
       $ source <path-to-installed-Xilinx-Vivado>/settings64.sh
